@@ -33,8 +33,8 @@ services:
         condition: service_healthy
     volumes:
       - ../build/libs/fess-1taroextractor-1.0.0-all.jar:/usr/share/fess/app/WEB-INF/lib/fess-1taroextractor-1.0.0-all.jar
-      - ../docker-test/extractor.xml:/usr/share/fess/app/WEB-INF/classes/crawler/extractor.xml
-      - ../docker-test/custom-mimetypes.xml:/usr/share/fess/app/WEB-INF/classes/org/apache/tika/mime/custom-mimetypes.xml
+      - ./extractor.xml:/usr/share/fess/app/WEB-INF/classes/crawler/extractor.xml
+      - ./custom-mimetypes.xml:/usr/share/fess/app/WEB-INF/classes/org/apache/tika/mime/custom-mimetypes.xml
       - ../testfiles:/testfiles
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8080/ || exit 1"]

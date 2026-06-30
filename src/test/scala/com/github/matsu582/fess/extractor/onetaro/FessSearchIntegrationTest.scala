@@ -23,7 +23,7 @@ import java.time.Duration
  * 前提条件:
  * - testfiles/ にテスト用一太郎ファイルが配置されていること
  * - build/libs/fess-1taroextractor-1.0.0-all.jar が存在すること (./gradlew fatJar)
- * - docker-test/extractor.xml, custom-mimetypes.xml が存在すること
+ * - docker-fess-search/extractor.xml, custom-mimetypes.xml が存在すること
  *
  * 手動検証: docker-fess-search/docker-compose.yml で同等の環境構築が可能
  */
@@ -33,8 +33,8 @@ class FessSearchIntegrationTest:
 
   private val testFilesDir = Path.of("testfiles")
   private val fatJarPath = Path.of("build/libs/fess-1taroextractor-1.0.0-all.jar")
-  private val extractorXml = Path.of("docker-test/extractor.xml")
-  private val mimetypesXml = Path.of("docker-test/custom-mimetypes.xml")
+  private val extractorXml = Path.of("docker-fess-search/extractor.xml")
+  private val mimetypesXml = Path.of("docker-fess-search/custom-mimetypes.xml")
 
   private val httpClient = HttpClient.newBuilder()
     .connectTimeout(Duration.ofSeconds(10))
@@ -56,7 +56,7 @@ class FessSearchIntegrationTest:
     )
     Assumptions.assumeTrue(
       Files.exists(extractorXml) && Files.exists(mimetypesXml),
-      "docker-test/extractor.xml または custom-mimetypes.xml が存在しません"
+      "docker-fess-search/extractor.xml または custom-mimetypes.xml が存在しません"
     )
 
     network = Network.newNetwork()
