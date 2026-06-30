@@ -42,15 +42,22 @@ def create_legacy_file(filename: str, text_sjis: bytes, ext: str = ".jsw"):
     print(f"  生成: {filepath} ({len(data)} bytes)")
 
 
-def create_ole2_file(filename: str, text_utf16be: bytes, ext: str = ".jtd"):
+def create_ole2_file(
+    filename: str,
+    text_data: bytes,
+    ext: str = ".jtd",
+    encoding: str = "utf-16-be",
+):
     """
-    一太郎 OLE2形式 (ver8+) のテストファイルを生成する
+    一太郎 OLE2形式のテストファイルを生成する
 
-    olefile を使って OLE2 Compound Document を構築し、
+    OLE2 Compound Document を構築し、
     DocumentText ストリームに TextV.01 マーカー + テキストを配置する
-    """
-    import olefile
 
+    encoding:
+      "utf-16-be" — ver8以降。制御コードは2バイト (0x001F / 0x000E)
+      "shift-jis" — ver7。制御コードは1バイト (0x1F / 0x0E)
+    """
     # DocumentText ストリームの構築
     stream_data = bytearray()
 
@@ -63,19 +70,21 @@ def create_ole2_file(filename: str, text_utf16be: bytes, ext: str = ".jtd"):
     if len(stream_data) % 2 != 0:
         stream_data.extend(b"\x00")
 
-    # テキスト開始マーカー (0x001F) + テキスト + セクション終了 (0x000E)
-    stream_data.extend(b"\x00\x1F")
-    stream_data.extend(text_utf16be)
-    stream_data.extend(b"\x00\x0E")
+    if encoding == "shift-jis":
+        # ver7: 単バイト制御コード + Shift-JISテキスト
+        stream_data.extend(b"\x1F")
+        stream_data.extend(text_data)
+        stream_data.extend(b"\x0E")
+    else:
+        # ver8以降: UTF-16BE制御コード (2バイト) + UTF-16BEテキスト
+        stream_data.extend(b"\x00\x1F")
+        stream_data.extend(text_data)
+        stream_data.extend(b"\x00\x0E")
 
     # OLE2 ファイルとして書き出し
     filepath = os.path.join(OUTPUT_DIR, filename + ext)
 
-    # 空の OLE2 ファイルを作成してストリームを追加
-    ole = olefile.OleFileIO.__new__(olefile.OleFileIO)
-    # olefile では直接作成が難しいので、低レベルで構築
-
-    # 代替手法: cfb (Compound File Binary) を手動構築
+    # cfb (Compound File Binary) を手動構築
     write_ole2_manual(filepath, stream_data)
     print(f"  生成: {filepath}")
 
@@ -342,9 +351,10 @@ def main():
     create_ole2_file("test_ole2_multiline", bytes(utf16_5), ".jtd")
 
     # テスト6: ver7形式 (.jfw) — Shift-JISエンコーディング
+    # ver7はOLE2構造だが、テキストはShift-JIS + 単バイト制御コード
     text6 = "一太郎バージョン7形式のテストです。"
     sjis_6 = text6.encode("cp932")
-    create_ole2_file("test_ole2_v7", sjis_6, ".jfw")
+    create_ole2_file("test_ole2_v7", sjis_6, ".jfw", encoding="shift-jis")
 
     print("\n生成完了")
 
