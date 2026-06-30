@@ -16,5 +16,4 @@ build/
 .vscode/
 .metals/
 .bloop/
-# テストファイル（実一太郎ファイルはリポジトリに含めない）
-testfiles/
+# テストファイル生成スクリプトの出力は含める（testfiles/はトラッキング対象）

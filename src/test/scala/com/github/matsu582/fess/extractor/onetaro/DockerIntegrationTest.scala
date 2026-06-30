@@ -72,25 +72,25 @@ class DockerIntegrationTest:
     stdout
 
   @Test
-  def testExtract28246(): Unit =
-    val output = runExtractor("/testfiles/28246.jtd")
-    assertTrue(output.contains("抽出成功"), s"28246.jtd の抽出に失敗:\n$output")
-    assertTrue(output.contains("計画の目的"), s"28246.jtd の内容が不正:\n$output")
+  def testExtractOle2Basic(): Unit =
+    val output = runExtractor("/testfiles/test_ole2_basic.jtd")
+    assertTrue(output.contains("抽出成功"), s"test_ole2_basic.jtd の抽出に失敗:\n$output")
+    assertTrue(output.contains("テスト文書"), s"test_ole2_basic.jtd の内容が不正:\n$output")
 
   @Test
-  def testExtract28253(): Unit =
-    val output = runExtractor("/testfiles/28253.jtd")
-    assertTrue(output.contains("抽出成功"), s"28253.jtd の抽出に失敗:\n$output")
-    assertTrue(output.contains("情報収集"), s"28253.jtd の内容が不正:\n$output")
+  def testExtractOle2Multiline(): Unit =
+    val output = runExtractor("/testfiles/test_ole2_multiline.jtd")
+    assertTrue(output.contains("抽出成功"), s"test_ole2_multiline.jtd の抽出に失敗:\n$output")
+    assertTrue(output.contains("文書のタイトル"), s"test_ole2_multiline.jtd の内容が不正:\n$output")
 
   @Test
-  def testExtract28254(): Unit =
-    val output = runExtractor("/testfiles/28254.jtd")
-    assertTrue(output.contains("抽出成功"), s"28254.jtd の抽出に失敗:\n$output")
-    assertTrue(output.contains("入手情報"), s"28254.jtd の内容が不正:\n$output")
+  def testExtractLegacyBasic(): Unit =
+    val output = runExtractor("/testfiles/test_legacy_basic.jsw")
+    assertTrue(output.contains("抽出成功"), s"test_legacy_basic.jsw の抽出に失敗:\n$output")
+    assertTrue(output.contains("テスト文書"), s"test_legacy_basic.jsw の内容が不正:\n$output")
 
   @Test
   def testExtractAllFiles(): Unit =
     val output = runExtractor("/testfiles")
-    assertTrue(output.contains("成功: 3"), s"全ファイルの抽出結果が不正:\n$output")
+    assertTrue(output.contains("成功: 6"), s"全ファイルの抽出結果が不正:\n$output")
     assertTrue(output.contains("失敗: 0"), s"一部ファイルの抽出に失敗:\n$output")

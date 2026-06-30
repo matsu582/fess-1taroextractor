@@ -233,14 +233,14 @@ echo "$$RESULT2" | grep -qi "scheduler\\|job" && echo "CRAWLER_STARTED" || echo 
     loginAndSetupCrawl()
     waitForCrawlCompletion()
 
-    // 「計画の目的」で検索 → 28246.jtd がヒットすること
-    val result1 = searchFess("計画の目的")
-    assertTrue(result1.contains("28246"), s"「計画の目的」検索で28246.jtdが見つかりません:\n${result1.take(500)}")
+    // 「テスト文書」で検索 → test_ole2_basic.jtd がヒットすること
+    val result1 = searchFess("テスト文書")
+    assertTrue(result1.contains("test_ole2_basic"), s"「テスト文書」検索でtest_ole2_basic.jtdが見つかりません:\n${result1.take(500)}")
 
-    // 「情報収集」で検索 → 28253.jtd がヒットすること
-    val result2 = searchFess("情報収集")
-    assertTrue(result2.contains("28253"), s"「情報収集」検索で28253.jtdが見つかりません:\n${result2.take(500)}")
+    // 「文書のタイトル」で検索 → test_ole2_multiline.jtd がヒットすること
+    val result2 = searchFess("文書のタイトル")
+    assertTrue(result2.contains("test_ole2_multiline"), s"「文書のタイトル」検索でtest_ole2_multiline.jtdが見つかりません:\n${result2.take(500)}")
 
-    // 「入手情報」で検索 → 28254.jtd がヒットすること
-    val result3 = searchFess("入手情報")
-    assertTrue(result3.contains("28254"), s"「入手情報」検索で28254.jtdが見つかりません:\n${result3.take(500)}")
+    // 「レガシー形式」で検索 → test_legacy_basic.jsw がヒットすること
+    val result3 = searchFess("レガシー形式")
+    assertTrue(result3.contains("test_legacy_basic"), s"「レガシー形式」検索でtest_legacy_basic.jswが見つかりません:\n${result3.take(500)}")

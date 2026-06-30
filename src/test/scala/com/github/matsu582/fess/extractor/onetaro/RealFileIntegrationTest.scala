@@ -14,9 +14,12 @@ class RealFileIntegrationTest extends AnyFlatSpec with Matchers:
   private val testFilesDir = Path.of("testfiles")
 
   private val testFiles = Seq(
-    "28246.jtd",
-    "28253.jtd",
-    "28254.jtd"
+    "test_ole2_basic.jtd",
+    "test_ole2_multiline.jtd",
+    "test_ole2_v7.jfw",
+    "test_legacy_basic.jsw",
+    "test_legacy_newline.jaw",
+    "test_legacy_keisen.jbw"
   ).map(name => name -> testFilesDir.resolve(name))
    .filter((_, p) => Files.exists(p))
 
