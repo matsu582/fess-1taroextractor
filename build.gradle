@@ -103,7 +103,7 @@ jar {
         attributes(
             'Implementation-Title': project.name,
             'Implementation-Version': project.version,
-            'Automatic-Module-Name': 'org.codelibs.fess.extractor.ichitaro'
+            'Automatic-Module-Name': 'com.github.matsu582.fess.extractor.onetaro'
         )
     }
 }
