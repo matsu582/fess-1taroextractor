@@ -168,7 +168,7 @@ com.github.matsu582.fess.extractor.onetaro
 
 - [Fess](https://fess.codelibs.org/) — オープンソース全文検索サーバー（[GitHub](https://github.com/codelibs/fess)）
 - [fess-crawler](https://github.com/codelibs/fess-crawler) — Fess クローラーライブラリ
-- [o2md](https://github.com/matsu582/o2md) — Office/PDF/一太郎からMarkdown/テキストへの変換ツール（Fess連携対応）
+- [o2md](https://github.com/matsu582/o2md) — Office/PDF/一太郎からMarkdown/テキストへの変換ツール
 
 ## ライセンス
 
