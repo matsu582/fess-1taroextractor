@@ -1,4 +1,4 @@
-package jp.co.nttdata_ccs.fess.extractor
+package com.github.matsu582.fess.extractor
 
 import org.apache.logging.log4j.LogManager
 
@@ -59,7 +59,7 @@ object OnetaroLegacyParser:
     // シグネチャ確認
     if !data.slice(0, 4).sameElements(MagicDoc) then return false
     // 検証値確認
-    val validationVal = readU32BE(data, HeaderValidationOffset)
+    val validationVal = readU32LE(data, HeaderValidationOffset)
     validationVal == HeaderValidationValue
 
   /**
@@ -115,11 +115,11 @@ object OnetaroLegacyParser:
         i += 1
 
     if textBlockOffset >= 0 then
-      val pageCount = readU32BE(data, textBlockOffset + 8)
+      val pageCount = readU32LE(data, textBlockOffset + 8)
       if pageCount > 0 && blockStride > 0 then
         val calcOffset = blockStride * (pageCount - 1) + baseOffsetVal
         if calcOffset + 4 <= fileSize then
-          val textSize = readU32BE(data, calcOffset)
+          val textSize = readU32LE(data, calcOffset)
           if textSize > 0 && textSize < fileSize then
             logger.debug(
               s"[旧JTD] ブロックテーブルから特定: offset=0x${TextStartOffset.toHexString}, size=$textSize"
@@ -127,7 +127,7 @@ object OnetaroLegacyParser:
             return (TextStartOffset, textSize)
 
     // フォールバック: オフセット0x800から4バイトでサイズ取得
-    var textSize = readU32BE(data, TextSizeOffset)
+    var textSize = readU32LE(data, TextSizeOffset)
     if textSize <= 0 || textSize > fileSize then
       textSize = fileSize - TextStartOffset
 
@@ -230,14 +230,14 @@ object OnetaroLegacyParser:
   private def isPrintableByte(b: Int): Boolean =
     (b >= 0x20 && b <= 0x7E) || (b >= 0xA1 && b <= 0xDF)
 
-  /** ビッグエンディアンで4バイト整数を読み取る(ヘッダ検証値用) */
-  private def readU32BE(data: Array[Byte], offset: Int): Int =
+  /** リトルエンディアンで4バイト整数を読み取る */
+  private def readU32LE(data: Array[Byte], offset: Int): Int =
     if offset + 4 > data.length then 0
     else
-      ((data(offset + 3) & 0xFF) << 24) |
-      ((data(offset + 2) & 0xFF) << 16) |
+      (data(offset) & 0xFF) |
       ((data(offset + 1) & 0xFF) << 8) |
-      (data(offset) & 0xFF)
+      ((data(offset + 2) & 0xFF) << 16) |
+      ((data(offset + 3) & 0xFF) << 24)
 
   /** リトルエンディアンで2バイト整数を読み取る */
   private def readU16LE(data: Array[Byte], offset: Int): Int =

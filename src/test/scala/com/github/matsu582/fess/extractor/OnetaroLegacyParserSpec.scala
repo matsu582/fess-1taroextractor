@@ -1,4 +1,4 @@
-package jp.co.nttdata_ccs.fess.extractor
+package com.github.matsu582.fess.extractor
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

@@ -3,7 +3,7 @@ plugins {
     id 'java-library'
 }
 
-group = 'jp.co.nttdata_ccs.fess'
+group = 'com.github.matsu582.fess'
 version = '1.0.0'
 
 java {
