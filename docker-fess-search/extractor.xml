@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE components PUBLIC "-//DBFLUTE//DTD LastaDi 1.0//EN"
+        "http://dbflute.org/meta/lastadi10.dtd">
+<components namespace="fessCrawler">
+        <include path="crawler/container.xml" />
+
+        <component name="tikaExtractor"
+                class="org.codelibs.fess.crawler.extractor.impl.TikaExtractor">
+                <property name="maxCompressionRatio">1</property>
+                <property name="maxUncompressionSize">10000000</property>
+        </component>
+        <component name="textExtractor"
+                class="org.codelibs.fess.crawler.extractor.impl.TextExtractor" />
+        <component name="htmlExtractor"
+                class="org.codelibs.fess.crawler.extractor.impl.HtmlExtractor">
+                <property name="featureMap">
+                        <component class="java.util.LinkedHashMap">
+                                <postConstruct name="put">
+                                        <arg>"http://xml.org/sax/features/namespaces"</arg>
+                                        <arg>"false"</arg>
+                                </postConstruct>
+                        </component>
+                </property>
+                <property name="propertyMap">
+                        <component class="java.util.LinkedHashMap">
+                        </component>
+                </property>
+                <postConstruct name="addMetadata">
+                        <arg>"title"</arg>
+                        <arg>"//TITLE"</arg>
+                </postConstruct>
+        </component>
+
+        <!-- 一太郎専用Extractor -->
+        <component name="onetaroExtractor"
+                class="com.github.matsu582.fess.extractor.onetaro.OnetaroExtractor" />
+
+        <component name="extractorFactory"
+                class="org.codelibs.fess.crawler.extractor.ExtractorFactory">
+                <postConstruct name="addExtractor">
+                        <arg>["text/html"]</arg>
+                        <arg>htmlExtractor</arg>
+                </postConstruct>
+                <postConstruct name="addExtractor">
+                        <arg>["text/plain"]</arg>
+                        <arg>textExtractor</arg>
+                </postConstruct>
+                <postConstruct name="addExtractor">
+                        <arg>["application/x-js-taro"]</arg>
+                        <arg>onetaroExtractor</arg>
+                </postConstruct>
+        </component>
+</components>

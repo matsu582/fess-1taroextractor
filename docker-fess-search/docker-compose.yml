@@ -1,0 +1,47 @@
+version: '3'
+services:
+  opensearch:
+    image: ghcr.io/codelibs/fess-opensearch:2.17.1
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true
+      - FESS_DICTIONARY_PATH=/usr/share/opensearch/config/dictionary/
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  fess:
+    image: ghcr.io/codelibs/fess:15.7.0
+    container_name: fess
+    environment:
+      - SEARCH_ENGINE_HTTP_URL=http://opensearch:9200
+      - FESS_DICTIONARY_PATH=/usr/share/opensearch/config/dictionary/
+    ports:
+      - "8080:8080"
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    volumes:
+      - ../build/libs/fess-1taroextractor-1.0.0-all.jar:/usr/share/fess/app/WEB-INF/lib/fess-1taroextractor-1.0.0-all.jar
+      - ./extractor.xml:/usr/share/fess/app/WEB-INF/classes/crawler/extractor.xml
+      - ./custom-mimetypes.xml:/usr/share/fess/app/WEB-INF/classes/org/apache/tika/mime/custom-mimetypes.xml
+      - ../testfiles:/testfiles
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/ || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 90s
+
+volumes:
+  opensearch-data:
