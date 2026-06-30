@@ -1,4 +1,4 @@
-package com.github.matsu582.fess.extractor
+package com.github.matsu582.fess.extractor.onetaro
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

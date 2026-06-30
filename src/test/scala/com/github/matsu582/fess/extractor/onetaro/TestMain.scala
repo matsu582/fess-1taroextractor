@@ -1,4 +1,4 @@
-package com.github.matsu582.fess.extractor
+package com.github.matsu582.fess.extractor.onetaro
 
 import java.io.{ByteArrayInputStream, File, FileInputStream}
 

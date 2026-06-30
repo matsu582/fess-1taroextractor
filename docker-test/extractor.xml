@@ -33,7 +33,7 @@
 
         <!-- 一太郎専用Extractor -->
         <component name="onetaroExtractor"
-                class="com.github.matsu582.fess.extractor.OnetaroExtractor" />
+                class="com.github.matsu582.fess.extractor.onetaro.OnetaroExtractor" />
 
         <component name="extractorFactory"
                 class="org.codelibs.fess.crawler.extractor.ExtractorFactory">

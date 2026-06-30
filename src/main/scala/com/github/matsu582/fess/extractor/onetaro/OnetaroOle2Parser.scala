@@ -1,4 +1,4 @@
-package com.github.matsu582.fess.extractor
+package com.github.matsu582.fess.extractor.onetaro
 
 import org.apache.logging.log4j.LogManager
 import org.apache.poi.poifs.filesystem.{POIFSFileSystem, DirectoryEntry}
