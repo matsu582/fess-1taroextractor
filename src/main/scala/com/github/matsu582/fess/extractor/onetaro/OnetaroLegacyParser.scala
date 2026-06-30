@@ -167,11 +167,11 @@ object OnetaroLegacyParser:
           pos += 1
 
         case 0x1F =>
-          // 可変長スキップ
+          // 可変長スキップ (0x1F + タイプ + スキップ長 の最低3バイト)
           if pos + 2 < end then
             val skipLen = data(start + pos + 2) & 0xFF
-            if skipLen > 0 then pos += skipLen
-            else pos += 1
+            // 制御シーケンス自体が3バイトなので、最低3バイト進める
+            pos += math.max(3, skipLen)
           else
             pos += 1
 
