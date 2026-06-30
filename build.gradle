@@ -45,6 +45,10 @@ dependencies {
     testImplementation 'org.apache.tika:tika-core:2.9.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'org.apache.logging.log4j:log4j-core:2.23.1'
+
+    // Testcontainers (Docker統合テスト)
+    testImplementation 'org.testcontainers:testcontainers:1.19.7'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
 }
 
 tasks.named('test') {
@@ -61,6 +65,21 @@ tasks.register('fatJar', Jar) {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     // META-INFの重複を除外
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+// Docker統合テスト用JAR（TestMainを含む）
+tasks.register('dockerTestJar', Jar) {
+    archiveClassifier = 'docker-test'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from sourceSets.main.output
+    from sourceSets.test.output
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
