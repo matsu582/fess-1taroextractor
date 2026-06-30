@@ -52,7 +52,19 @@ dependencies {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        // Fess検索統合テストは時間がかかるため通常テストから除外
+        excludeTags 'fess-search'
+    }
+}
+
+// Fess検索統合テスト用タスク（明示実行）
+tasks.register('fessSearchTest', Test) {
+    useJUnitPlatform {
+        includeTags 'fess-search'
+    }
+    description = 'Fess + OpenSearch環境での検索統合テスト'
+    group = 'verification'
 }
 
 // JAR生成設定（依存ライブラリ込みのfat jarを作成）
