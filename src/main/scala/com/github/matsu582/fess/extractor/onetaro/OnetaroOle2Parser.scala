@@ -140,15 +140,14 @@ object OnetaroOle2Parser:
       val bom = readU16BE(data, offset)
       if bom == 0xFEFF then return false
 
-    // UTF-16BE制御コードマーカーをスキャン（偶数アライメント位置で探索）
+    // UTF-16BE制御コードマーカーをスキャン
     val scanEnd = math.min(offset + 512, data.length - 1)
     var i = offset
     while i < scanEnd do
-      if i % 2 == offset % 2 then // アライメント維持
-        val code = readU16BE(data, i)
-        // UTF-16BE制御コードが見つかればUTF-16BE確定
-        if code == 0x001C || code == 0x001F || code == 0x000E then
-          return false
+      val code = readU16BE(data, i)
+      // UTF-16BE制御コードが見つかればUTF-16BE確定
+      if code == 0x001C || code == 0x001F || code == 0x000E then
+        return false
       i += 2
 
     // UTF-16BE制御コードが見つからなければShift-JIS
@@ -250,6 +249,9 @@ object OnetaroOle2Parser:
         // セクション終了
         if output.size() > 0 then output.write('\n')
         inTextZone = false
+        i += 1
+      else if !inTextZone then
+        // テキストゾーン外はスキップ
         i += 1
       else if b == 0x00 then
         // null終端またはパディング
