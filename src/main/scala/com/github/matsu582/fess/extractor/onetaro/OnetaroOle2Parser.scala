@@ -105,29 +105,64 @@ object OnetaroOle2Parser:
   /**
    * TextV.01マーカー以降のデータからテキストを抽出する
    *
-   * 一太郎DocumentTextストリーム構造:
-   * - TextV.01 + null終端の後、偶数アライメントでテキスト開始
-   * - UTF-16BEエンコードの制御コード付きテキスト
-   *   - 0x001C: フォーマットブロック開始 (0x001Fまでスキップ)
-   *   - 0x001F: テキストコンテンツ開始マーカー
-   *   - 0x000A: 改行
-   *   - 0x000E: セクション終了マーカー
+   * エンコーディング判定:
+   * - UTF-16BE BOM (0xFEFF) が見つかればUTF-16BE (ver8以降)
+   * - Shift-JIS第1バイト範囲のパターンが多ければShift-JIS (ver7)
+   * - デフォルトはUTF-16BE
    */
   private def extractTextFromStream(data: Array[Byte], offset: Int): String =
     if offset >= data.length then return ""
 
     // null終端の後、偶数アライメントでテキスト開始位置を決定
     var start = offset
-    // null終端をスキップ
-    while start < data.length && data(start) == 0x00 do
-      start += 1
-    // ただし、マーカー直後のnullも含むので、+1してアライメント
     start = offset + 1  // null終端分
     if start % 2 != 0 then start += 1
 
     if start + 2 > data.length then return ""
 
-    extractUtf16StreamText(data, start)
+    // エンコーディング判定
+    if isShiftJisEncoded(data, start) then
+      extractShiftJisStreamText(data, start)
+    else
+      extractUtf16StreamText(data, start)
+
+  /**
+   * テキストデータがShift-JISエンコードかどうかを判定する
+   *
+   * UTF-16BEの場合、日本語文字は上位バイトが0x30-0x9F付近になるが、
+   * Shift-JISの場合はASCII範囲(0x20-0x7E)や半角カナ(0xA1-0xDF)が
+   * 連続して現れる。この特性を利用して判定する。
+   */
+  private def isShiftJisEncoded(data: Array[Byte], offset: Int): Boolean =
+    // UTF-16BE BOMがあればUTF-16BE確定
+    if offset + 1 < data.length then
+      val bom = readU16BE(data, offset)
+      if bom == 0xFEFF then return false
+
+    // サンプリング範囲（先頭256バイトまたはデータ末尾）
+    val sampleEnd = math.min(offset + 256, data.length)
+    val sampleLen = sampleEnd - offset
+    if sampleLen < 4 then return false
+
+    // Shift-JIS判定: 奇数位置にnullバイト(0x00)が多い場合はUTF-16BE
+    var nullCount = 0
+    var asciiCount = 0
+    var i = offset
+    while i < sampleEnd do
+      val b = data(i) & 0xFF
+      if b == 0x00 then nullCount += 1
+      if b >= 0x20 && b <= 0x7E then asciiCount += 1
+      i += 1
+
+    // UTF-16BE日本語はnullバイトが少なく、Shift-JISはnullが少ない
+    // Shift-JISは表示可能ASCII文字が多い傾向
+    val nullRatio = nullCount.toDouble / sampleLen
+    // nullが20%以上ならUTF-16BE（日本語のUTF-16BEは上位バイトが非ゼロだが制御コードでnullが出る）
+    if nullRatio > 0.2 then return false
+
+    // ASCII比率が高ければShift-JIS
+    val asciiRatio = asciiCount.toDouble / sampleLen
+    asciiRatio > 0.3
 
   /**
    * UTF-16BEストリームからテキストを抽出する
@@ -190,6 +225,52 @@ object OnetaroOle2Parser:
       flushChars(currentChars, lines)
 
     lines.toArray(Array.empty[String]).mkString("\n")
+
+  /**
+   * Shift-JISエンコードされたストリームからテキストを抽出する (ver7用)
+   */
+  private def extractShiftJisStreamText(data: Array[Byte], offset: Int): String =
+    val total = data.length
+    val output = new java.io.ByteArrayOutputStream(total - offset)
+    var i = offset
+
+    while i < total do
+      val b = data(i) & 0xFF
+
+      if b == 0x00 then
+        // null終端またはパディング
+        i += 1
+      else if b == 0x0A || b == 0x0D then
+        // 改行
+        output.write('\n')
+        i += 1
+        // CR+LFの場合はLFもスキップ
+        if b == 0x0D && i < total && (data(i) & 0xFF) == 0x0A then
+          i += 1
+      else if isSjisLeadByte(b) && i + 1 < total then
+        // Shift-JISマルチバイト文字
+        output.write(b)
+        output.write(data(i + 1) & 0xFF)
+        i += 2
+      else if b >= 0x20 && b <= 0x7E then
+        // ASCII表示可能文字
+        output.write(b)
+        i += 1
+      else if b >= 0xA1 && b <= 0xDF then
+        // 半角カナ
+        output.write(b)
+        i += 1
+      else
+        // 制御コード等はスキップ
+        i += 1
+
+    val text = new String(output.toByteArray, "MS932")
+    // 連続する改行を整理
+    text.replaceAll("\n{3,}", "\n\n").trim
+
+  /** Shift-JISマルチバイト文字の第1バイトかどうか判定 */
+  private def isSjisLeadByte(b: Int): Boolean =
+    (b >= 0x81 && b <= 0x9F) || (b >= 0xE0 && b <= 0xFC)
 
   /** 文字バッファを行リストにフラッシュ */
   private def flushChars(

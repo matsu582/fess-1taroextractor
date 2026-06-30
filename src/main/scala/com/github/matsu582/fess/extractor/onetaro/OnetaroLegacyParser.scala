@@ -117,9 +117,9 @@ object OnetaroLegacyParser:
     if textBlockOffset >= 0 then
       val pageCount = readU32LE(data, textBlockOffset + 8)
       if pageCount > 0 && blockStride > 0 then
-        val calcOffset = blockStride * (pageCount - 1) + baseOffsetVal
-        if calcOffset + 4 <= fileSize then
-          val textSize = readU32LE(data, calcOffset)
+        val calcOffset = blockStride.toLong * (pageCount - 1).toLong + baseOffsetVal.toLong
+        if calcOffset >= 0 && calcOffset + 4 <= fileSize then
+          val textSize = readU32LE(data, calcOffset.toInt)
           if textSize > 0 && textSize < fileSize then
             logger.debug(
               s"[旧JTD] ブロックテーブルから特定: offset=0x${TextStartOffset.toHexString}, size=$textSize"

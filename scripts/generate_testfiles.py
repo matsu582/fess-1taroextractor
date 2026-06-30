@@ -341,10 +341,10 @@ def main():
             utf16_5.extend(b"\x00\x0A")  # 改行
     create_ole2_file("test_ole2_multiline", bytes(utf16_5), ".jtd")
 
-    # テスト6: ver7形式 (.jfw)
+    # テスト6: ver7形式 (.jfw) — Shift-JISエンコーディング
     text6 = "一太郎バージョン7形式のテストです。"
-    utf16_6 = text6.encode("utf-16-be")
-    create_ole2_file("test_ole2_v7", utf16_6, ".jfw")
+    sjis_6 = text6.encode("cp932")
+    create_ole2_file("test_ole2_v7", sjis_6, ".jfw")
 
     print("\n生成完了")
 
