@@ -21,7 +21,7 @@ dependencies {
     implementation 'org.scala-lang:scala3-library_3:3.3.3'
 
     // Fess Crawler (実行時はFessが提供するのでcompileOnly)
-    compileOnly('org.codelibs.fess:fess-crawler:14.19.0') {
+    compileOnly('org.codelibs.fess:fess-crawler:15.7.0') {
         transitive = false
     }
     // Fess Crawlerが必要とする最小限のインターフェース
@@ -38,7 +38,7 @@ dependencies {
     testImplementation 'org.scalatest:scalatest_3:3.2.18'
     testImplementation 'org.scalatestplus:junit-5-10_3:3.2.18.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-    testImplementation('org.codelibs.fess:fess-crawler:14.19.0') {
+    testImplementation('org.codelibs.fess:fess-crawler:15.7.0') {
         transitive = false
     }
     testImplementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
